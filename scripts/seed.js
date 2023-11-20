@@ -161,14 +161,23 @@ async function seedRevenue(client) {
 }
 
 async function main() {
-  const client = await db.connect();
+  try {
+    const connectionString = process.env.POSTGRES_URL;
 
-  await seedUsers(client);
-  await seedCustomers(client);
-  await seedInvoices(client);
-  await seedRevenue(client);
+    // Connect to the database using the specified connection string
+    const client = await db.connect({ connectionString });
 
-  await client.end();
+    // Call the seeding functions
+    await seedUsers(client);
+    await seedCustomers(client);
+    await seedInvoices(client);
+    await seedRevenue(client);
+
+    // Close the database connection
+    await client.end();
+  } catch (error) {
+    console.error('An error occurred while attempting to seed the database:', error);
+  }
 }
 
 main().catch((err) => {
